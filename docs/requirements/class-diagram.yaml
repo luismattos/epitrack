@@ -1,0 +1,111 @@
+classes:
+  User:
+    description: Usuário autenticado que pode acessar funcionalidades básicas do sistema.
+    attributes:
+    - id: UUID, identificador único do usuário
+    - name: String, nome completo do usuário
+    - email: String, email único para login
+    - password_hash: String, senha armazenada de forma segura
+    - created_at: Datetime, data de criação do usuário
+    methods:
+    - authenticate(email, password): Autentica o usuário no sistema
+  Patient:
+    extends: User
+    description: Usuário que pode registrar crises, gerenciar medicações e configurar
+      lembretes.
+    attributes:
+    - medical_history: String, histórico clínico relevante
+    methods:
+    - record_seizure(data): Registra uma nova crise epiléptica
+    - view_medication_history(): Exibe histórico de medicação do paciente
+    - manage_permissions(): Gerencia permissões de acesso para profissionais de saúde
+    - configure_reminder(medication, time): Configura lembretes para tomar medicamentos
+  HealthcareProfessional:
+    extends: User
+    description: Usuário que pode visualizar relatórios, gerenciar prescrições e sugerir
+      alterações em medicações.
+    attributes:
+    - professional_id: String, número de registro no conselho de classe (CRM, CRP,
+        etc.)
+    - specialty: String, especialidade do profissional de saúde
+    methods:
+    - create_prescription(patient, medication, dosage): Cria uma nova prescrição médica
+    - view_patient_report(patient): Visualiza relatório médico do paciente
+    - suggest_medication_change(patient, medication): Sugere alterações na medicação
+        do paciente
+  Seizure:
+    description: Representa um evento de crise epiléptica registrado no sistema.
+    attributes:
+    - id: UUID, identificador único da crise
+    - patient_id: UUID, identifica o paciente que teve a crise
+    - occurred_at: Datetime, data e hora do evento
+    - seizure_type: String, tipo da crise epiléptica
+    - duration: Integer, duração em segundos
+    methods:
+    - record_seizure(patient, data): Registra um evento de crise
+    - view_history(patient): Exibe todas as crises registradas do paciente
+  Medication:
+    description: Representa um medicamento prescrito para um paciente.
+    attributes:
+    - id: UUID, identificador único do medicamento
+    - name: String, nome do medicamento
+    - dosage: String, dosagem recomendada
+    - frequency: String, frequência da administração
+    methods:
+    - update_dosage(new_dosage): Altera a dosagem do medicamento
+    - associate_patient(patient): Relaciona o medicamento a um paciente
+  Prescription:
+    description: Registra uma prescrição feita por um profissional de saúde para um
+      paciente.
+    attributes:
+    - id: UUID, identificador único da prescrição
+    - professional_id: UUID, identifica o profissional que prescreveu
+    - patient_id: UUID, identifica o paciente
+    - medication_id: UUID, identifica o medicamento prescrito
+    - dosage: String, dosagem recomendada
+    methods:
+    - create_prescription(professional, patient, medication, dosage): Cria uma nova
+        prescrição médica
+    - view_prescriptions(patient): Visualiza todas as prescrições de um paciente
+  Reminder:
+    description: Representa um lembrete para a administração de medicamentos.
+    attributes:
+    - id: UUID, identificador único do lembrete
+    - patient_id: UUID, identifica o paciente associado
+    - medication_id: UUID, identifica o medicamento relacionado
+    - time: Datetime, horário do lembrete
+    - status: String, indica se o lembrete foi atendido
+    methods:
+    - set_reminder(patient, medication, time): Cria um novo lembrete de medicação
+    - send_notification(): Envia um alerta para o paciente
+relationships:
+  inheritance:
+  - subclass: Patient
+    superclass: User
+  - subclass: HealthcareProfessional
+    superclass: User
+  associations:
+  - source: Patient
+    target: Seizure
+    type: 1..*
+    description: Um paciente pode registrar múltiplas crises.
+  - source: Patient
+    target: Medication
+    type: 1..*
+    description: Um paciente pode ter múltiplos medicamentos.
+  - source: Patient
+    target: Reminder
+    type: 1..*
+    description: Um paciente pode configurar múltiplos lembretes.
+  - source: HealthcareProfessional
+    target: Prescription
+    type: 1..*
+    description: Um profissional pode criar múltiplas prescrições para pacientes.
+  - source: Prescription
+    target: Medication
+    type: 1..*
+    description: Uma prescrição pode conter múltiplos medicamentos.
+  - source: Prescription
+    target: Patient
+    type: '1'
+    description: Cada prescrição pertence a um paciente.

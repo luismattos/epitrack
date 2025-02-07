@@ -1,0 +1,75 @@
+actors:
+  User:
+    description: Usuário autenticado que pode acessar funcionalidades do sistema.
+  Patient:
+    extends: User
+    description: Usuário que pode registrar crises, gerenciar medicações e configurar
+      lembretes.
+  HealthcareProfessional:
+    extends: User
+    description: Usuário que pode visualizar relatórios, gerenciar prescrições e sugerir
+      alterações em medicações.
+use_cases:
+  Authentication:
+    AuthenticateUser:
+      description: Permite que um usuário faça login no sistema e acesse suas funcionalidades.
+      relations:
+        executed_by:
+        - User: 1..n
+  HealthManagement:
+    ManageMedications:
+      description: Permite ao paciente visualizar, adicionar, editar e remover suas
+        medicações.
+      relations:
+        executed_by:
+        - Patient: 1..1
+    ManageSeizures:
+      description: Permite ao paciente registrar e visualizar crises epilépticas.
+      relations:
+        executed_by:
+        - Patient: 1..1
+    ManagePermissions:
+      description: Permite ao paciente gerenciar permissões de acesso a seus dados
+        para profissionais de saúde.
+      relations:
+        executed_by:
+        - Patient: 1..1
+    ConfigureReminder:
+      description: Permite ao paciente configurar e gerenciar lembretes para a administração
+        de medicamentos.
+      relations:
+        executed_by:
+        - Patient: 1..1
+    SuggestMedicationChange:
+      description: Permite que um profissional de saúde sugira alterações na medicação
+        do paciente.
+      relations:
+        executed_by:
+        - HealthcareProfessional: 1..n
+  Communication:
+    RequestContact:
+      description: Permite que o usuário solicite contato com um profissional de saúde
+        para esclarecimento de dúvidas ou suporte.
+      relations:
+        executed_by:
+        - User: 1..n
+  Reports:
+    ViewSeizureHistory:
+      description: Permite ao usuário acessar o histórico de crises epilépticas registradas
+        no sistema.
+      relations:
+        accessed_by:
+        - User: 1..n
+    ViewMedicationHistory:
+      description: Permite ao usuário acessar o histórico de medicações tomadas e
+        prescrições associadas.
+      relations:
+        accessed_by:
+        - User: 1..n
+    ViewMedicalReport:
+      description: Permite ao paciente e ao profissional de saúde visualizar relatórios
+        médicos.
+      relations:
+        accessed_by:
+        - Patient: 1..1
+        - HealthcareProfessional: 1..n
